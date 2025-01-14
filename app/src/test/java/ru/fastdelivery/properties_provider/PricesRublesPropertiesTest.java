@@ -1,5 +1,6 @@
 package ru.fastdelivery.properties_provider;
 
+import jakarta.validation.Valid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.fastdelivery.domain.common.currency.Currency;
@@ -17,6 +18,7 @@ class PricesRublesPropertiesTest {
 
     public static final BigDecimal PER_KG = BigDecimal.valueOf(50);
     public static final BigDecimal MINIMAL = BigDecimal.valueOf(100);
+    public static final BigDecimal PER_CUB_METR = BigDecimal.valueOf(50);
     public static final String RUB = "RUB";
     final CurrencyFactory currencyFactory = mock(CurrencyFactory.class);
     PricesRublesProperties properties;
@@ -28,6 +30,7 @@ class PricesRublesPropertiesTest {
 
         properties.setPerKg(PER_KG);
         properties.setMinimal(MINIMAL);
+        properties.setPerCubMet(PER_CUB_METR);
 
         var currency = mock(Currency.class);
         when(currency.getCode()).thenReturn(RUB);
@@ -50,6 +53,15 @@ class PricesRublesPropertiesTest {
 
         verify(currencyFactory).create("RUB");
         assertThat(actual.amount()).isEqualByComparingTo(MINIMAL);
+        assertThat(actual.currency().getCode()).isEqualTo("RUB");
+    }
+
+    @Test
+    void whenCallPerCubMetPrice_thenRequestFromConfig() {
+        var actual = properties.costPerCubMetr();
+
+        verify(currencyFactory).create("RUB");
+        assertThat(actual.amount()).isEqualByComparingTo(PER_CUB_METR);
         assertThat(actual.currency().getCode()).isEqualTo("RUB");
     }
 }

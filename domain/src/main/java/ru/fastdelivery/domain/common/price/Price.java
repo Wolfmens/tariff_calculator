@@ -3,6 +3,8 @@ package ru.fastdelivery.domain.common.price;
 import ru.fastdelivery.domain.common.currency.Currency;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 /**
  * @param amount   значение цены
@@ -29,6 +31,6 @@ public record Price(
         if (!currency.equals(price.currency)) {
             throw new IllegalArgumentException("Cannot compare Prices in difference Currency!");
         }
-        return new Price(this.amount.max(price.amount), this.currency);
+        return new Price(this.amount.max(price.amount).setScale(2, RoundingMode.HALF_UP), this.currency);
     }
 }

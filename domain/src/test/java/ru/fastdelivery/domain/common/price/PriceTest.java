@@ -35,8 +35,8 @@ class PriceTest {
 
     @Test
     void max() {
-        var price = new Price(BigDecimal.valueOf(10), currency);
-        var moreThanPrice = new Price(BigDecimal.valueOf(100), currency);
+        var price = new Price(BigDecimal.valueOf(10, 2), currency);
+        var moreThanPrice = new Price(BigDecimal.valueOf(100, 2), currency);
 
         var actualMax = price.max(moreThanPrice);
 
