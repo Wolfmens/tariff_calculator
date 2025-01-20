@@ -1,6 +1,5 @@
 package ru.fastdelivery.properties_provider;
 
-import jakarta.validation.Valid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.fastdelivery.domain.common.currency.Currency;
@@ -10,9 +9,7 @@ import ru.fastdelivery.properties.provider.PricesRublesProperties;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class PricesRublesPropertiesTest {
 

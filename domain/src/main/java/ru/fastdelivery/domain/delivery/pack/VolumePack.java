@@ -27,7 +27,6 @@ public class VolumePack {
     }
 
     public BigDecimal mmToMeterCube() {
-        MathContext context = new MathContext(4, RoundingMode.HALF_UP);
 
         return new BigDecimal(volume)
                 .divide(BigDecimal.valueOf(1_000_000_000),4,  RoundingMode.HALF_UP);

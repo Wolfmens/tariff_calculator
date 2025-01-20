@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import ru.fastdelivery.domain.common.coordinate.CoordinateDelivery;
+import ru.fastdelivery.domain.common.coordinate.Departure;
+import ru.fastdelivery.domain.common.coordinate.Destination;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.dimension.Height;
@@ -29,9 +32,11 @@ class TariffCalculateUseCaseTest {
 
     final WeightPriceProvider weightPriceProvider = mock(WeightPriceProvider.class);
     final VolumePriceProvider volumePriceProvider = mock(VolumePriceProvider.class);
+    final DistanceStepPropertyProvider distanceStepPropertyProvider = mock(DistanceStepPropertyProvider.class);
     final Currency currency = new CurrencyFactory(code -> true).create("RUB");
 
-    final TariffCalculateUseCase tariffCalculateUseCase = new TariffCalculateUseCase(weightPriceProvider, volumePriceProvider);
+    final TariffCalculateUseCase tariffCalculateUseCase =
+            new TariffCalculateUseCase(weightPriceProvider, volumePriceProvider, distanceStepPropertyProvider);
 
     @Test
     @DisplayName("Расчет стоимости доставки -> успешно")
@@ -39,10 +44,16 @@ class TariffCalculateUseCaseTest {
         var minimalPrice = new Price(BigDecimal.TEN, currency);
         var pricePerKg = new Price(BigDecimal.valueOf(100), currency);
         var pricePerCubeMetr = new Price(BigDecimal.valueOf(200), currency);
+        var distanceStepForCalculateStep = new BigInteger("450");
 
         when(weightPriceProvider.minimalPrice()).thenReturn(minimalPrice);
         when(weightPriceProvider.costPerKg()).thenReturn(pricePerKg);
         when(volumePriceProvider.costPerCubMetr()).thenReturn(pricePerCubeMetr);
+        when(distanceStepPropertyProvider.getMinStepDistance()).thenReturn(distanceStepForCalculateStep);
+
+        CoordinateDelivery coordinateDelivery = new CoordinateDelivery
+                (new Destination(BigDecimal.valueOf(45), BigDecimal.valueOf(65)),
+                        new Departure(BigDecimal.valueOf(45), BigDecimal.valueOf(65)));
 
         var shipment = new Shipment(
                 List.of(new Pack(
@@ -50,7 +61,8 @@ class TariffCalculateUseCaseTest {
                         new Length(BigInteger.valueOf(345)),
                         new Width(BigInteger.valueOf(589)),
                         new Height(BigInteger.valueOf(234)))),
-                new CurrencyFactory(code -> true).create("RUB"));
+                new CurrencyFactory(code -> true).create("RUB"),
+                coordinateDelivery);
 
         var expectedPrice = new Price(BigDecimal.valueOf(456.4), currency);
 

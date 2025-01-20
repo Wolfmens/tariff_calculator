@@ -6,3 +6,12 @@ cost:
     perKg: 400
     minimal: 350
     perCubMet: 200
+
+distance:
+  step: 450
+
+coordinate:
+  latitude-max: 65
+  latitude-min: 45
+  longitude-max: 96
+  longitude-min: 30

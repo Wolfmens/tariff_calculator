@@ -2,6 +2,9 @@ package ru.fastdelivery.domain.delivery.shipment;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.fastdelivery.domain.common.coordinate.CoordinateDelivery;
+import ru.fastdelivery.domain.common.coordinate.Departure;
+import ru.fastdelivery.domain.common.coordinate.Destination;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.dimension.Height;
 import ru.fastdelivery.domain.common.dimension.Length;
@@ -9,6 +12,7 @@ import ru.fastdelivery.domain.common.dimension.Width;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -28,6 +32,8 @@ class ShipmentTest {
 
     List<Pack> packages;
 
+    CoordinateDelivery coordinateDelivery;
+
     Shipment shipment;
 
     @BeforeEach
@@ -46,7 +52,11 @@ class ShipmentTest {
                 new Pack(weight1, lenght1, width1, height1),
                 new Pack(weight2, lenght2, width2, height2));
 
-        shipment = new Shipment(packages, new CurrencyFactory(code -> true).create("RUB"));
+        coordinateDelivery = new CoordinateDelivery(
+                new Destination(BigDecimal.valueOf(45), BigDecimal.valueOf(55)),
+                new Departure(BigDecimal.valueOf(55), BigDecimal.valueOf(45)));
+
+        shipment = new Shipment(packages, new CurrencyFactory(code -> true).create("RUB"), coordinateDelivery);
     }
 
     @Test
