@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
 import ru.fastdelivery.usecase.TariffCalculateUseCase;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/calculate/")
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class CalculateController {
     })
     public CalculatePackagesResponse calculate(
             @Valid @RequestBody CalculatePackagesRequest request) {
+        log.info("Request for calc cost delivery: {} ", request);
         var packs = request.packages().stream()
                 .map(cargoPackage -> new Pack(
                         new Weight(cargoPackage.weight()),
@@ -65,7 +68,11 @@ public class CalculateController {
         var calculatedPrice = tariffCalculateUseCase.calc(shipment);
         var minimalPrice = tariffCalculateUseCase.minimalPrice();
 
-        return new CalculatePackagesResponse(calculatedPrice, minimalPrice);
+        CalculatePackagesResponse calculatePackagesResponse = new CalculatePackagesResponse(calculatedPrice, minimalPrice);
+
+        log.info("Response for calc cost delivery: {} ", calculatePackagesResponse);
+
+        return calculatePackagesResponse;
     }
 }
 

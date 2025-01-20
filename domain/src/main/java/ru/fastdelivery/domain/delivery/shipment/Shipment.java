@@ -1,5 +1,6 @@
 package ru.fastdelivery.domain.delivery.shipment;
 
+import lombok.ToString;
 import ru.fastdelivery.domain.common.coordinate.CoordinateDelivery;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.weight.Weight;

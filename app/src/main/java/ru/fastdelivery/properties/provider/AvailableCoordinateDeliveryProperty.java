@@ -2,6 +2,7 @@ package ru.fastdelivery.properties.provider;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import ru.fastdelivery.domain.common.coordinate.CoordinatePropertiesProvider;
@@ -14,6 +15,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "coordinate")
 @Setter
 @Getter
+@Slf4j
 public class AvailableCoordinateDeliveryProperty implements CoordinatePropertiesProvider {
 
     private Long latitudeMax;
@@ -35,8 +37,11 @@ public class AvailableCoordinateDeliveryProperty implements CoordinateProperties
     private boolean isNotValid(List<BigDecimal> valuesFromRequest, Long maxCoordinate, Long minCoordinate) {
         for (BigDecimal value : valuesFromRequest) {
             if (!(minCoordinate <= value.longValue() && value.longValue() <= maxCoordinate)) {
+                log.error("Координата: {} не валидна и выходит за область ограничений: {} - {}",
+                        value.longValue(), maxCoordinate, minCoordinate);
                 return true;
             }
+            log.info("Координаты в запросе верны");
         }
         return false;
     }

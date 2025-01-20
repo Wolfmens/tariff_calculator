@@ -1,6 +1,7 @@
 package ru.fastdelivery.usecase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.fastdelivery.domain.common.dimension.Height;
 import ru.fastdelivery.domain.common.dimension.Length;
 import ru.fastdelivery.domain.common.dimension.Width;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Named
 @RequiredArgsConstructor
+@Slf4j
 public class TariffCalculateUseCase {
 
     private final WeightPriceProvider weightPriceProvider;
@@ -32,6 +34,7 @@ public class TariffCalculateUseCase {
             Length newLength = new Length(roundingParam(pack.length().getLength()));
             updatesPackages.add(new Pack(pack.weight(), newLength, newWidth, newHeight));
         }
+        log.info("Data packs demensions is rounded");
 
         return updatesPackages;
     }
@@ -45,10 +48,11 @@ public class TariffCalculateUseCase {
     }
 
     public Price calc(Shipment shipment) {
+        log.info("Request for calc by shipment {}", shipment);
         var weightAllPackagesKg = shipment.weightAllPackages().kilograms();
         var volumeAllPackagesMetr = shipment.volumeAllPackages().mmToMeterCube();
 
-        Price baseTotalPriceByWeightAndVolumeShipment = getBaseTotalPrice(volumeAllPackagesMetr, weightAllPackagesKg);
+        Price baseTotalPriceByWeightAndVolumeShipment = getBaseTotalPriceByVolumeAndWeight(volumeAllPackagesMetr, weightAllPackagesKg);
 
         BigDecimal distanceDeliveryByCoordinate = DistantceCalculate.calculateDistanceBy(
                 shipment.coordinateDelivery().destination(),
@@ -74,8 +78,11 @@ public class TariffCalculateUseCase {
         BigDecimal totalFinallyCostDelivery = valueHowManyIsOverConstantStep.multiply(
                 baseTotalPriceByWeightAndVolumeShipment.amount());
 
+        Price priceForAnswer = new Price(totalFinallyCostDelivery, baseTotalPriceByWeightAndVolumeShipment.currency());
 
-        return new Price(totalFinallyCostDelivery, baseTotalPriceByWeightAndVolumeShipment.currency());
+        log.info("Response price {}: ", priceForAnswer);
+
+        return priceForAnswer;
     }
 
     public Price minimalPrice() {
@@ -83,8 +90,8 @@ public class TariffCalculateUseCase {
     }
 
 
-    public Price getBaseTotalPrice(BigDecimal volumeAllPackagesMetr,
-                                   BigDecimal weightAllPackagesKg) {
+    public Price getBaseTotalPriceByVolumeAndWeight(BigDecimal volumeAllPackagesMetr,
+                                                    BigDecimal weightAllPackagesKg) {
         Price totalPriceByVolume = volumePriceProvider
                 .costPerCubMetr()
                 .multiply(volumeAllPackagesMetr);
@@ -95,8 +102,12 @@ public class TariffCalculateUseCase {
 
         var minimalPrice = weightPriceProvider.minimalPrice();
 
-        return totalPriceByWeight
+        Price finalPriceForAnswer = totalPriceByWeight
                 .max(totalPriceByVolume)
                 .max(minimalPrice);
+
+        log.info("Price by weight and volume: {}", finalPriceForAnswer);
+
+        return finalPriceForAnswer;
     }
 }
