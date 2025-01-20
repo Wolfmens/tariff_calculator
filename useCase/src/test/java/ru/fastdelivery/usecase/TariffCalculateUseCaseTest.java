@@ -40,7 +40,7 @@ class TariffCalculateUseCaseTest {
 
     @Test
     @DisplayName("Расчет стоимости доставки -> успешно")
-    void whenCalculatePrice_thenSuccess() {
+    void whenCalculatePriceWithDistanceOverMinimalDistanceConstantForCost_thenSuccessCostOnBaseDistance() {
         var minimalPrice = new Price(BigDecimal.TEN, currency);
         var pricePerKg = new Price(BigDecimal.valueOf(100), currency);
         var pricePerCubeMetr = new Price(BigDecimal.valueOf(200), currency);
@@ -53,7 +53,7 @@ class TariffCalculateUseCaseTest {
 
         CoordinateDelivery coordinateDelivery = new CoordinateDelivery
                 (new Destination(BigDecimal.valueOf(45), BigDecimal.valueOf(65)),
-                        new Departure(BigDecimal.valueOf(45), BigDecimal.valueOf(65)));
+                        new Departure(BigDecimal.valueOf(65), BigDecimal.valueOf(45)));
 
         var shipment = new Shipment(
                 List.of(new Pack(
@@ -64,7 +64,42 @@ class TariffCalculateUseCaseTest {
                 new CurrencyFactory(code -> true).create("RUB"),
                 coordinateDelivery);
 
-        var expectedPrice = new Price(BigDecimal.valueOf(456.4), currency);
+        var expectedPrice = new Price(BigDecimal.valueOf(3194.80), currency);
+
+        var actualPrice = tariffCalculateUseCase.calc(shipment);
+
+        assertThat(actualPrice).usingRecursiveComparison()
+                .withComparatorForType(BigDecimalComparator.BIG_DECIMAL_COMPARATOR, BigDecimal.class)
+                .isEqualTo(expectedPrice);
+    }
+
+    @Test
+    @DisplayName("Расчет стоимости доставки -> успешно")
+    void whenCalculatePriceWithDistanceLessMinimalDistanceConstantForCost_thenSuccessCostOnBaseVolumeAndWeight() {
+        var minimalPrice = new Price(BigDecimal.TEN, currency);
+        var pricePerKg = new Price(BigDecimal.valueOf(100), currency);
+        var pricePerCubeMetr = new Price(BigDecimal.valueOf(200), currency);
+        var distanceStepForCalculateStep = new BigInteger("450");
+
+        when(weightPriceProvider.minimalPrice()).thenReturn(minimalPrice);
+        when(weightPriceProvider.costPerKg()).thenReturn(pricePerKg);
+        when(volumePriceProvider.costPerCubMetr()).thenReturn(pricePerCubeMetr);
+        when(distanceStepPropertyProvider.getMinStepDistance()).thenReturn(distanceStepForCalculateStep);
+
+        CoordinateDelivery coordinateDelivery = new CoordinateDelivery
+                (new Destination(BigDecimal.valueOf(53), BigDecimal.valueOf(53)),
+                        new Departure(BigDecimal.valueOf(53), BigDecimal.valueOf(53)));
+
+        var shipment = new Shipment(
+                List.of(new Pack(
+                        new Weight(BigInteger.valueOf(4564)),
+                        new Length(BigInteger.valueOf(345)),
+                        new Width(BigInteger.valueOf(589)),
+                        new Height(BigInteger.valueOf(234)))),
+                new CurrencyFactory(code -> true).create("RUB"),
+                coordinateDelivery);
+
+        var expectedPrice = new Price(BigDecimal.valueOf(456.40), currency);
 
         var actualPrice = tariffCalculateUseCase.calc(shipment);
 

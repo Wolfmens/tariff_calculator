@@ -12,6 +12,7 @@ import ru.fastdelivery.domain.delivery.shipment.Shipment;
 import javax.inject.Named;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class TariffCalculateUseCase {
                 (new BigDecimal(minStepDistanceByBaseTotalPrice), 2, RoundingMode.HALF_UP);
 
         BigDecimal totalFinallyCostDelivery = valueHowManyIsOverConstantStep.multiply(
-                baseTotalPriceByWeightAndVolumeShipment.amount());
+                baseTotalPriceByWeightAndVolumeShipment.amount()).setScale(2, RoundingMode.HALF_UP);
 
         Price priceForAnswer = new Price(totalFinallyCostDelivery, baseTotalPriceByWeightAndVolumeShipment.currency());
 

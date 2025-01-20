@@ -8,9 +8,12 @@ import ru.fastdelivery.domain.common.coordinate.Departure;
 import ru.fastdelivery.domain.common.coordinate.Destination;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 public class DistantceCalculate {
+
+    private static final Double COEFF_KM_PER_DEGREE = 111.32;
 
     private DistantceCalculate() {
     }
@@ -27,7 +30,10 @@ public class DistantceCalculate {
 
         log.info("Distance from {} to {} -> result: {}", destinationPoint, departurePoint, departurePoint.distance(destinationPoint));
 
-        return BigDecimal.valueOf(departurePoint.distance(destinationPoint));
+        double distanceDegrees = departurePoint.distance(destinationPoint);
+        double distanceMeters = distanceDegrees * COEFF_KM_PER_DEGREE;
+
+        return BigDecimal.valueOf(distanceMeters).setScale(2, RoundingMode.HALF_UP);
     }
 
 }
